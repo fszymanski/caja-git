@@ -16,6 +16,7 @@
 
 __all__ = ['is_git_dir', 'Repository']
 
+from gettext import gettext as _
 from pathlib import Path
 
 import gi
@@ -84,7 +85,7 @@ class Repository(pygit2.Repository):
                                            flags=0,
                                            message_type=Gtk.MessageType.QUESTION,
                                            buttons=Gtk.ButtonsType.YES_NO,
-                                           text='This branch does not exist. Do you want to create it?')
+                                           text=_(f"The '{branch_name}' branch does not exist. Do you want to create it?"))
                 if dialog.run() == Gtk.ResponseType.YES:
                     branch = self.branches.local.create(branch_name, self.head.peel())
 

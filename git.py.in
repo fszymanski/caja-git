@@ -14,6 +14,11 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
+import gettext
+
+gettext.textdomain('caja-git')
+_ = gettext.gettext
+
 import sys
 
 sys.path.insert(0, '@PKG_DATA_DIR@/src')
@@ -49,7 +54,7 @@ class GitPropertyExtension(GObject.GObject, Caja.PropertyPageProvider):
 
         location = files[0].get_location()
         if (path := location.get_path()) is not None and is_git_dir(path):
-            label = Gtk.Label.new('Git')
+            label = Gtk.Label.new(_('Git'))
             label.show()
 
             return (Caja.PropertyPage(name='CajaPython::git',
