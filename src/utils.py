@@ -49,10 +49,10 @@ class Repository(pygit2.Repository):
                 if flag in [GIT_STATUS_INDEX_MODIFIED, GIT_STATUS_WT_MODIFIED]]
 
     def get_project_name(self):
-        if (url := self.get_remote_url()) is None:
-            return Path(self.path).parent.name
+        if url := self.get_remote_url():
+            return Path(url).stem
 
-        return Path(url).stem
+        return Path(self.path).parent.name
 
     def get_remote_url(self):
         try:
