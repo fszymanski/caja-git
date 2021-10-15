@@ -1,2 +1,3 @@
 # caja-git
-Caja extension that shows information about the current git directory
+
+## This extension is not finished yet please do not use it!

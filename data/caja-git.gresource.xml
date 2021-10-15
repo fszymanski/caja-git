@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/mate/caja/extensions/git">
+    <file compressed="true" preprocess="xml-stripblanks">icons/caja-git-symbolic.svg</file>
+    <file preprocess="xml-stripblanks">ui/gitbranchdialog.ui</file>
+    <file preprocess="xml-stripblanks">ui/gitinfobar.ui</file>
+    <file preprocess="xml-stripblanks">ui/gitpropertypage.ui</file>
+  </gresource>
+</gresources>
+
+<!-- vim: ts=2 et -->
