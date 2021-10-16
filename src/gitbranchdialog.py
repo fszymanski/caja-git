@@ -52,8 +52,6 @@ class GitBranchDialog(Gtk.Dialog):
 
         self.branch_combo.set_active(idx)
 
-        self.show_all()
-
     @Gtk.Template.Callback()
     def branch_entry_changed(self, *args):
         branch = self.branch_entry.get_text().strip()

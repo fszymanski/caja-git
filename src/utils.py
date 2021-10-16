@@ -66,7 +66,7 @@ class Git:
         if branch := do_shell('git branch --show-current', self.path):
             return branch
 
-        return do_shell('git name-rev --name-only HEAD', self.path)
+        return do_shell('git rev-parse --abbrev-ref HEAD', self.path)
 
     def get_local_branches(self):
         if branches := do_shell('git branch', self.path):
@@ -75,8 +75,7 @@ class Git:
         return []
 
     def get_modified(self):
-        if modified := do_shell('git diff --name-only;'
-                                'git diff --name-only --cached', self.path):
+        if modified := do_shell('git diff --name-only', self.path):
             return sorted(set(modified.split('\n')))
 
         return []

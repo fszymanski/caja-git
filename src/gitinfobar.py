@@ -25,6 +25,7 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from gitbranchdialog import GitBranchDialog
+from gitdiffdialog import GitDiffDialog
 from utils import Git
 from watchdog import Watchdog
 
@@ -122,6 +123,8 @@ class GitInfoBar(Gtk.InfoBar):
 
     @Gtk.Template.Callback()
     def diff_button_clicked(self, *args):
-        pass
+        dialog = GitDiffDialog(self.git, self.window)
+
+        self.more_popover.hide()
 
 # vim: ft=python3 ts=4 et
