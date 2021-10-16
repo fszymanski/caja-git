@@ -2,20 +2,20 @@
 <!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <object class="GtkImage" id="added_img">
+  <object class="GtkImage" id="deleted_img">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">list-add-symbolic</property>
+    <property name="icon-name">list-remove-symbolic</property>
   </object>
-  <object class="GtkImage" id="changed_img">
+  <object class="GtkImage" id="modified_img">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <property name="icon-name">document-edit-symbolic</property>
   </object>
-  <object class="GtkImage" id="removed_img">
+  <object class="GtkImage" id="new_file_img">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
-    <property name="icon-name">list-remove-symbolic</property>
+    <property name="icon-name">list-add-symbolic</property>
   </object>
   <template class="GitInfoBar" parent="GtkInfoBar">
     <property name="visible">True</property>
@@ -76,13 +76,13 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="added_button">
+          <object class="GtkButton" id="new_file_button">
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="image">added_img</property>
+            <property name="image">new_file_img</property>
             <property name="always-show-image">True</property>
-            <signal name="clicked" handler="added_button_clicked" swapped="no"/>
+            <signal name="clicked" handler="new_file_button_clicked" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -91,13 +91,13 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="changed_button">
+          <object class="GtkButton" id="modified_button">
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="image">changed_img</property>
+            <property name="image">modified_img</property>
             <property name="always-show-image">True</property>
-            <signal name="clicked" handler="changed_button_clicked" swapped="no"/>
+            <signal name="clicked" handler="modified_button_clicked" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -106,13 +106,13 @@
           </packing>
         </child>
         <child>
-          <object class="GtkButton" id="removed_button">
+          <object class="GtkButton" id="deleted_button">
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
-            <property name="image">removed_img</property>
+            <property name="image">deleted_img</property>
             <property name="always-show-image">True</property>
-            <signal name="clicked" handler="removed_button_clicked" swapped="no"/>
+            <signal name="clicked" handler="deleted_button_clicked" swapped="no"/>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -131,18 +131,18 @@
       <placeholder/>
     </child>
   </template>
-  <object class="GtkPopover" id="added_popover">
+  <object class="GtkPopover" id="deleted_popover">
     <property name="width-request">200</property>
     <property name="can-focus">False</property>
-    <property name="relative-to">added_button</property>
+    <property name="relative-to">deleted_button</property>
     <child>
       <placeholder/>
     </child>
   </object>
-  <object class="GtkPopover" id="changed_popover">
+  <object class="GtkPopover" id="modified_popover">
     <property name="width-request">200</property>
     <property name="can-focus">False</property>
-    <property name="relative-to">changed_button</property>
+    <property name="relative-to">modified_button</property>
     <child>
       <placeholder/>
     </child>
@@ -193,10 +193,10 @@
       </object>
     </child>
   </object>
-  <object class="GtkPopover" id="removed_popover">
+  <object class="GtkPopover" id="new_file_popover">
     <property name="width-request">200</property>
     <property name="can-focus">False</property>
-    <property name="relative-to">removed_button</property>
+    <property name="relative-to">new_file_button</property>
     <child>
       <placeholder/>
     </child>

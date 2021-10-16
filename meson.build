@@ -1,5 +1,7 @@
 project('caja-git', license: 'GPL-3.0-or-later', version: '0.1')
 
+git = find_program('git')
+
 py = import('python')
 
 python = py.find_installation('python3')

@@ -28,28 +28,27 @@ class GitBranchDialog(Gtk.Dialog):
 
     __gsignals__ = {'refresh': (GObject.SIGNAL_RUN_FIRST, None, ())}
 
+    apply_button = Gtk.Template.Child()
     branch_combo = Gtk.Template.Child()
     branch_entry = Gtk.Template.Child()
-
-    apply_button = Gtk.Template.Child()
     cancel_button = Gtk.Template.Child()
 
-    def __init__(self, repo, window):
+    def __init__(self, git, window):
         super().__init__()
 
         self.set_transient_for(window)
 
-        self.repo = repo
+        self.git = git
 
-        self.set_title(self.repo.get_project_name())
+        self.set_title(self.git.get_project_name())
 
-        current_branch = self.repo.get_current_branch()
+        current_branch = self.git.get_current_branch()
         idx = 0
-        for (i, branch_name) in enumerate(self.repo.get_local_branches()):
-            if branch_name == current_branch:
+        for (i, branch) in enumerate(self.git.get_local_branches()):
+            if branch == current_branch:
                 idx = i
 
-            self.branch_combo.append_text(branch_name)
+            self.branch_combo.append_text(branch)
 
         self.branch_combo.set_active(idx)
 
@@ -57,16 +56,16 @@ class GitBranchDialog(Gtk.Dialog):
 
     @Gtk.Template.Callback()
     def branch_entry_changed(self, *args):
-        branch_name = self.branch_entry.get_text().strip()
-        if branch_name and branch_name in self.repo.get_local_branches():
+        branch = self.branch_entry.get_text().strip()
+        if branch and branch in self.git.get_local_branches():
             self.branch_entry.get_style_context().remove_class('error')
         else:
             self.branch_entry.get_style_context().add_class('error')
 
     @Gtk.Template.Callback()
     def apply_button_clicked(self, *args):
-        if branch_name := self.branch_entry.get_text().strip():
-            self.repo.switch_branch(branch_name, self)
+        if branch := self.branch_entry.get_text().strip():
+            self.git.switch_branch(branch, self)
 
             self.emit('refresh')
 

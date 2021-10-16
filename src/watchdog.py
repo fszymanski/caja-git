@@ -31,7 +31,7 @@ class Watchdog(GObject.GObject, Thread):
         Thread.__init__(self)
 
         self.daemon = True
-        self.path_to_watch = Path(path, 'HEAD')
+        self.path_to_watch = Path(path, '.git/HEAD')
         self.last_modified_time = None
 
         self.start()

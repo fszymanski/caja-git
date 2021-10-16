@@ -25,8 +25,11 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from gitbranchdialog import GitBranchDialog
-from utils import Repository
+from utils import Git
 from watchdog import Watchdog
+
+GIT_REMOTE_URL_RE = re.compile(r'(http|ftp)s?://')
+GIT_DIR_RE = re.compile(r'\.git/?$')
 
 
 @Gtk.Template(resource_path='/org/mate/caja/extensions/git/ui/gitinfobar.ui')
@@ -34,40 +37,38 @@ class GitInfoBar(Gtk.InfoBar):
     __gtype_name__ = 'GitInfoBar'
 
     branch_button = Gtk.Template.Child()
-
-    added_button = Gtk.Template.Child()
-    changed_button = Gtk.Template.Child()
-    removed_button = Gtk.Template.Child()
-    added_popover = Gtk.Template.Child()
-    changed_popover = Gtk.Template.Child()
-    removed_popover = Gtk.Template.Child()
-
+    deleted_button = Gtk.Template.Child()
+    deleted_popover = Gtk.Template.Child()
+    diff_button = Gtk.Template.Child()
+    modified_button = Gtk.Template.Child()
+    modified_popover = Gtk.Template.Child()
     more_button = Gtk.Template.Child()
     more_popover = Gtk.Template.Child()
+    new_file_button = Gtk.Template.Child()
+    new_file_popover = Gtk.Template.Child()
     open_remote_url_button = Gtk.Template.Child()
-    diff_button = Gtk.Template.Child()
 
     def __init__(self, path, window):
         super().__init__()
 
-        self.repo = Repository(path)
+        self.git = Git(path)
         self.window = window
 
         self.update_ui()
 
-        self.added_button.connect('clicked', self.show_popover, self.added_popover)
-        self.changed_button.connect('clicked', self.show_popover, self.changed_popover)
-        self.removed_button.connect('clicked', self.show_popover, self.removed_popover)
+        self.new_file_button.connect('clicked', self.show_popover, self.new_file_popover)
+        self.modified_button.connect('clicked', self.show_popover, self.modified_popover)
+        self.deleted_button.connect('clicked', self.show_popover, self.deleted_popover)
         self.more_button.connect('clicked', self.show_popover, self.more_popover)
 
-        watchdog = Watchdog(self.repo.path)
+        watchdog = Watchdog(self.git.path)
         watchdog.connect('refresh', self.refresh)
 
     def update_ui(self):
-        self.branch_button.set_label(self.repo.get_current_branch())
+        self.branch_button.set_label(self.git.get_current_branch())
 
-        status = self.repo.get_status()
-        for prefix in ['added', 'changed', 'removed']:
+        status = self.git.get_status()
+        for prefix in ['deleted', 'modified', 'new_file']:
             button = getattr(self, f'{prefix}_button')
             if filenames := status[prefix]:
                 button.set_label(str(len(filenames)))
@@ -85,12 +86,12 @@ class GitInfoBar(Gtk.InfoBar):
             else:
                 button.hide()
 
-        if has_remote := bool(re.match(r'(http|ftp)s?://', self.repo.get_remote_url())):
+        if has_remote := bool(GIT_REMOTE_URL_RE.match(self.git.get_remote_url())):
             self.open_remote_url_button.show()
         else:
             self.open_remote_url_button.hide()
 
-        if has_modified := self.repo.get_modified():
+        if has_modified := self.git.get_modified():
             self.diff_button.show()
         else:
             self.diff_button.hide()
@@ -108,13 +109,13 @@ class GitInfoBar(Gtk.InfoBar):
 
     @Gtk.Template.Callback()
     def branch_button_clicked(self, *args):
-        dialog = GitBranchDialog(self.repo, self.window)
+        dialog = GitBranchDialog(self.git, self.window)
 
         dialog.connect('refresh', self.refresh)
 
     @Gtk.Template.Callback()
     def open_remote_url_button_clicked(self, *args):
-        url = re.sub(r'\.git/?$', '', self.repo.get_remote_url())
+        url = GIT_DIR_RE.sub('', self.git.get_remote_url())
         webbrowser.open(url)
 
         self.more_popover.hide()

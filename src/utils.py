@@ -14,8 +14,10 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-__all__ = ['is_git_dir', 'Repository']
+__all__ = ['do_shell', 'get_git_top_level_dir', 'Git', 'is_git_dir']
 
+import re
+import subprocess
 from gettext import gettext as _
 from pathlib import Path
 
@@ -24,76 +26,95 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from pygit2 import GIT_STATUS_INDEX_MODIFIED, GIT_STATUS_WT_DELETED, GIT_STATUS_WT_MODIFIED, GIT_STATUS_WT_NEW
-import pygit2
+GIT_STATUS_DELETED_RE = re.compile(r'deleted:\s+(.*)')
+GIT_STATUS_MODIFIED_RE = re.compile(r'modified:\s+(.*)')
+GIT_STATUS_NEW_RE = re.compile(r'new file:\s+(.*)')
+
+
+def do_shell(cmd, path):
+    proc = subprocess.run(cmd,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.DEVNULL,
+                          shell=True,
+                          cwd=path)
+    return proc.stdout.decode('utf-8').strip()
+
+
+def get_git_top_level_dir(path):
+    return do_shell('git rev-parse --show-toplevel', path)
 
 
 def is_git_dir(path):
-    return pygit2.discover_repository(path) is not None
+    try:
+        subprocess.run('git rev-parse --is-inside-work-tree',
+                       stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL,
+                       shell=True,
+                       cwd=path,
+                       check=True)
+
+        return True
+    except:
+        return False
 
 
-class Repository(pygit2.Repository):
+class Git:
     def __init__(self, path):
-        super().__init__(path)
+        self.path = get_git_top_level_dir(path)
 
     def get_current_branch(self):
-        try:
-            return self.head.shorthand
-        except pygit2.GitError:
-            return Path(self.lookup_reference('HEAD').target).name
+        if branch := do_shell('git branch --show-current', self.path):
+            return branch
+
+        return do_shell('git name-rev --name-only HEAD', self.path)
 
     def get_local_branches(self):
-        return list(self.branches.local)
+        if branches := do_shell('git branch', self.path):
+            return sorted([b.lstrip('* ') for b in branches.split('\n')])
+
+        return []
 
     def get_modified(self):
-        return [filename for (filename, flag) in self.status().items()
-                if flag in [GIT_STATUS_INDEX_MODIFIED, GIT_STATUS_WT_MODIFIED]]
+        if modified := do_shell('git diff --name-only;'
+                                'git diff --name-only --cached', self.path):
+            return sorted(set(modified.split('\n')))
+
+        return []
 
     def get_project_name(self):
         if url := self.get_remote_url():
             return Path(url).stem
 
-        return Path(self.path).parent.name
+        return Path(self.path).name
 
     def get_remote_url(self):
-        try:
-            return self.remotes['origin'].url
-        except KeyError:
-            return ''
+        return do_shell('git config --get remote.origin.url', self.path)
 
     def get_status(self):
-        status = {
-            GIT_STATUS_WT_NEW: [],
-            GIT_STATUS_WT_MODIFIED: [],
-            GIT_STATUS_WT_DELETED: []
+        status = do_shell('git status', self.path)
+
+        deleted = GIT_STATUS_DELETED_RE.findall(status)
+        modified = GIT_STATUS_MODIFIED_RE.findall(status)
+        new_file = GIT_STATUS_NEW_RE.findall(status)
+
+        return {
+            'deleted': set(deleted),
+            'modified': set(modified),
+            'new_file': set(new_file)
         }
 
-        for (filename, flag) in self.status().items():
-            if flag in status:
-                status[flag].append(filename)
+    def switch_branch(self, branch, dialog_):
+        if branch in self.get_local_branches():
+            do_shell(f'git checkout {branch}', self.path)
+        else:
+            dialog = Gtk.MessageDialog(transient_for=dialog_,
+                                       flags=0,
+                                       message_type=Gtk.MessageType.QUESTION,
+                                       buttons=Gtk.ButtonsType.YES_NO,
+                                       text=_(f"The '{branch}' branch does not exist. Do you want to create it?"))
+            if dialog.run() == Gtk.ResponseType.YES:
+                do_shell(f'git checkout -b {branch}', self.path)
 
-        status['added'] = status.pop(GIT_STATUS_WT_NEW)
-        status['changed'] = status.pop(GIT_STATUS_WT_MODIFIED)
-        status['removed'] = status.pop(GIT_STATUS_WT_DELETED)
-
-        return status
-
-    def switch_branch(self, branch_name, dialog_):
-        try:
-            if (branch := self.branches.local.get(branch_name)) is None:
-                dialog = Gtk.MessageDialog(transient_for=dialog_,
-                                           flags=0,
-                                           message_type=Gtk.MessageType.QUESTION,
-                                           buttons=Gtk.ButtonsType.YES_NO,
-                                           text=_(f"The '{branch_name}' branch does not exist. Do you want to create it?"))
-                if dialog.run() == Gtk.ResponseType.YES:
-                    branch = self.branches.local.create(branch_name, self.head.peel())
-
-                dialog.destroy()
-
-            ref = self.lookup_reference(branch.name)
-            self.checkout(ref)
-        except pygit2.GitError:
-            pass
+            dialog.destroy()
 
 # vim: ft=python3 ts=4 et

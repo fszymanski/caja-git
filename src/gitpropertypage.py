@@ -21,7 +21,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-from utils import Repository
+from utils import Git
 from watchdog import Watchdog
 
 
@@ -30,25 +30,25 @@ class GitPropertyPage(Gtk.Grid):
     __gtype_name__ = 'GitPropertyPage'
 
     branch_label = Gtk.Template.Child()
-    added_label = Gtk.Template.Child()
-    changed_label = Gtk.Template.Child()
-    removed_label = Gtk.Template.Child()
+    deleted_label = Gtk.Template.Child()
+    modified_label = Gtk.Template.Child()
+    new_file_label = Gtk.Template.Child()
 
     def __init__(self, path):
         super().__init__()
 
-        self.repo = Repository(path)
+        self.git = Git(path)
 
         self.update_ui()
 
-        watchdog = Watchdog(self.repo.path)
+        watchdog = Watchdog(self.git.path)
         watchdog.connect('refresh', self.refresh)
 
     def update_ui(self):
-        self.branch_label.set_text(self.repo.get_current_branch())
+        self.branch_label.set_text(self.git.get_current_branch())
 
-        status = self.repo.get_status()
-        for prefix in ['added', 'changed', 'removed']:
+        status = self.git.get_status()
+        for prefix in ['deleted', 'modified', 'new_file']:
             label = getattr(self, f'{prefix}_label')
             label.set_text(str(len(status[prefix])))
 
