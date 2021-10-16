@@ -27,13 +27,30 @@ class GitDiffDialog(Gtk.Dialog):
     __gtype_name__ = 'GitDiffDialog'
 
     close_button = Gtk.Template.Child()
+    diffstat_label = Gtk.Template.Child()
+    modified_combo = Gtk.Template.Child()
+    source_view = Gtk.Template.Child()
 
     def __init__(self, git, window):
         super().__init__()
 
+        self.git = git
+
         self.set_transient_for(window)
 
-        self.git = git
+        if filenames := self.git.get_modified():
+            for filename in filenames:
+                self.modified_combo.append_text(filename)
+
+            self.modified_combo.set_active(0)
+
+    def set_buffer(self, filename):
+        pass
+
+    @Gtk.Template.Callback()
+    def modified_combo_changed(self, *args):
+        filename = self.modified_combo.get_active_text()
+        self.set_buffer(filename)
 
     @Gtk.Template.Callback()
     def close_button_clicked(self, *args):

@@ -97,9 +97,9 @@ class Git:
         new_file = GIT_STATUS_NEW_RE.findall(status)
 
         return {
-            'deleted': set(deleted),
-            'modified': set(modified),
-            'new_file': set(new_file)
+            'deleted': sorted(set(deleted)),
+            'modified': sorted(set(modified)),
+            'new_file': sorted(set(new_file))
         }
 
     def switch_branch(self, branch, dialog_):

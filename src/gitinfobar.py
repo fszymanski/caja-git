@@ -75,7 +75,7 @@ class GitInfoBar(Gtk.InfoBar):
                 button.set_label(str(len(filenames)))
 
                 vbox = Gtk.Box.new(Gtk.Orientation.VERTICAL, 6)
-                for filename in sorted(filenames):
+                for filename in filenames:
                     label = Gtk.Label.new(filename)
                     label.set_halign(Gtk.Align.START)
                     vbox.pack_start(label, False, False, 0)

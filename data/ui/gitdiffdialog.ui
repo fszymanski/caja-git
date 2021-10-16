@@ -2,6 +2,17 @@
 <!-- Generated with glade 3.38.2 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
+  <requires lib="gtksourceview" version="4.0"/>
+  <object class="GtkAdjustment" id="hadjustment">
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="vadjustment">
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
   <template class="GitDiffDialog" parent="GtkDialog">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -46,9 +57,10 @@
             <property name="visible">True</property>
             <property name="can-focus">False</property>
             <child>
-              <object class="GtkComboBox">
+              <object class="GtkComboBoxText" id="modified_combo">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <signal name="changed" handler="modified_combo_changed" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -57,10 +69,9 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel">
+              <object class="GtkLabel" id="diffstat_label">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="label" translatable="yes">label</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -76,7 +87,30 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkScrolledWindow">
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="shadow-type">in</property>
+            <child>
+              <object class="GtkSourceView" id="source_view">
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="hadjustment">hadjustment</property>
+                <property name="hscroll-policy">natural</property>
+                <property name="vadjustment">vadjustment</property>
+                <property name="vscroll-policy">natural</property>
+                <property name="left-margin">2</property>
+                <property name="right-margin">2</property>
+                <property name="monospace">True</property>
+                <property name="show-line-numbers">True</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
         </child>
       </object>
     </child>

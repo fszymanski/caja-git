@@ -36,11 +36,10 @@ class GitBranchDialog(Gtk.Dialog):
     def __init__(self, git, window):
         super().__init__()
 
-        self.set_transient_for(window)
-
         self.git = git
 
         self.set_title(self.git.get_project_name())
+        self.set_transient_for(window)
 
         current_branch = self.git.get_current_branch()
         idx = 0
