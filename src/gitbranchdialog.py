@@ -16,6 +16,8 @@
 
 __all__ = ['GitBranchDialog']
 
+from gettext import gettext as _
+
 import gi
 
 gi.require_version('Gtk', '3.0')
@@ -38,7 +40,7 @@ class GitBranchDialog(Gtk.Dialog):
 
         self.git = git
 
-        self.set_title(self.git.get_project_name())
+        self.set_title(_(f'Branch for {self.git.get_project_name()}'))
         self.set_transient_for(window)
 
         current_branch = self.git.get_current_branch()
