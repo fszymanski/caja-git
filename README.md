@@ -15,13 +15,22 @@ $ cd caja-git
 ```
 2. Build and install the extension.
 ```sh
-$ meson builddir
-$ sudo meson install -C builddir
-#  OR
+# Note: Omit the `--prefix` if you want to install globally
 $ meson --prefix=~/.local builddir
-$ meson install -C builddir
+$ ninja -C builddir install
 ```
 3. Restart Caja.
+```sh
+$ caja -q
+```
+
+## Uninstallation
+1. Uninstall the extension.
+```sh
+$ cd caja-git
+$ ninja -C builddir uninstall
+```
+2. Restart Caja.
 ```sh
 $ caja -q
 ```
