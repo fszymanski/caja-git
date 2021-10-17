@@ -99,10 +99,11 @@
                 <property name="hscroll-policy">natural</property>
                 <property name="vadjustment">vadjustment</property>
                 <property name="vscroll-policy">natural</property>
+                <property name="editable">False</property>
                 <property name="left-margin">2</property>
                 <property name="right-margin">2</property>
+                <property name="cursor-visible">False</property>
                 <property name="monospace">True</property>
-                <property name="show-line-numbers">True</property>
               </object>
             </child>
           </object>

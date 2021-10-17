@@ -30,6 +30,8 @@ GIT_STATUS_DELETED_RE = re.compile(r'deleted:\s+(.*)')
 GIT_STATUS_MODIFIED_RE = re.compile(r'modified:\s+(.*)')
 GIT_STATUS_NEW_RE = re.compile(r'new file:\s+(.*)')
 
+GIT_DIFF_NUMSTAT_RE = re.compile(r'(?P<insertions>\d+)\s+(?P<deletions>\d+)\s+.*')
+
 
 def do_shell(cmd, path):
     proc = subprocess.run(cmd,
@@ -67,6 +69,14 @@ class Git:
             return branch
 
         return do_shell('git rev-parse --abbrev-ref HEAD', self.path)
+
+    def get_diff(self, filename):
+        return do_shell(f'git diff {filename}', self.path)
+
+    def get_diffstat(self, filename):
+        if diffstat := do_shell(f'git diff --numstat {filename}', self.path):
+            if (match := GIT_DIFF_NUMSTAT_RE.search(diffstat)) is not None:
+                return _(f'{match.group("insertions")} insertion(s), {match.group("deletions")} deletion(s)')
 
     def get_local_branches(self):
         if branches := do_shell('git branch', self.path):
