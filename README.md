@@ -5,7 +5,6 @@ Caja extension that shows information about the current git directory. This proj
 
 ## Dependencies
 - `git`
-- `gtksourceview-4`
 - `python3-caja`
 
 ## Installation

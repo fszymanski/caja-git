@@ -21,8 +21,7 @@ from gettext import gettext as _
 import gi
 
 gi.require_version('Gtk', '3.0')
-gi.require_version('GtkSource', '4')
-from gi.repository import Gtk, GtkSource
+from gi.repository import Gtk
 
 
 @Gtk.Template(resource_path='/org/mate/caja/extensions/git/ui/gitdiffdialog.ui')
@@ -31,8 +30,8 @@ class GitDiffDialog(Gtk.Dialog):
 
     close_button = Gtk.Template.Child()
     diffstat_label = Gtk.Template.Child()
+    diff_view = Gtk.Template.Child()
     modified_combo = Gtk.Template.Child()
-    source_view = Gtk.Template.Child()
 
     def __init__(self, git, window):
         super().__init__()
@@ -53,16 +52,9 @@ class GitDiffDialog(Gtk.Dialog):
     def set_buffer(self, filename):
         diff = self.git.get_diff(filename)
 
-        manager = GtkSource.LanguageManager.new()
-        lang = manager.guess_language(filename, None)
-
-        buf = GtkSource.Buffer.new(None)
-        buf.set_language(lang)
-        buf.set_highlight_syntax(True)
-        buf.set_highlight_matching_brackets(False)
+        buf = Gtk.TextBuffer.new(None)
         buf.set_text(diff)
-
-        self.source_view.set_buffer(buf)
+        self.diff_view.set_buffer(buf)
 
         if (diffstat := self.git.get_diffstat(filename)) is not None:
             self.diffstat_label.set_text(diffstat)
