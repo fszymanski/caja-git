@@ -80,6 +80,7 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">New files</property>
             <property name="image">new_file_img</property>
             <property name="always-show-image">True</property>
             <signal name="clicked" handler="new_file_button_clicked" swapped="no"/>
@@ -95,6 +96,7 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Modified files</property>
             <property name="image">modified_img</property>
             <property name="always-show-image">True</property>
             <signal name="clicked" handler="modified_button_clicked" swapped="no"/>
@@ -110,6 +112,7 @@
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Deleted files</property>
             <property name="image">deleted_img</property>
             <property name="always-show-image">True</property>
             <signal name="clicked" handler="deleted_button_clicked" swapped="no"/>

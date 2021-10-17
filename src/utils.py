@@ -26,11 +26,11 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
+GIT_DIFF_NUMSTAT_RE = re.compile(r'(?P<insertions>\d+)\s+(?P<deletions>\d+)\s+.*')
+
 GIT_STATUS_DELETED_RE = re.compile(r'deleted:\s+(.*)')
 GIT_STATUS_MODIFIED_RE = re.compile(r'modified:\s+(.*)')
 GIT_STATUS_NEW_RE = re.compile(r'new file:\s+(.*)')
-
-GIT_DIFF_NUMSTAT_RE = re.compile(r'(?P<insertions>\d+)\s+(?P<deletions>\d+)\s+.*')
 
 
 def do_shell(cmd, path):
