@@ -20,6 +20,7 @@ import re
 import subprocess
 from gettext import gettext as _
 from pathlib import Path
+from shlex import quote
 
 import gi
 
@@ -71,10 +72,10 @@ class Git:
         return do_shell('git rev-parse --abbrev-ref HEAD', self.path)
 
     def get_diff(self, filename):
-        return do_shell(f'git diff {filename}', self.path)
+        return do_shell(f'git diff {quote(filename)}', self.path)
 
     def get_diffstat(self, filename):
-        if diffstat := do_shell(f'git diff --numstat {filename}', self.path):
+        if diffstat := do_shell(f'git diff --numstat {quote(filename)}', self.path):
             if (match := GIT_DIFF_NUMSTAT_RE.search(diffstat)) is not None:
                 return _(f'{match.group("added")} insertions(+), {match.group("deleted")} deletions(-)')
 
