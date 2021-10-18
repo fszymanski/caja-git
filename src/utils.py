@@ -71,11 +71,11 @@ class Git:
 
         return do_shell('git rev-parse --abbrev-ref HEAD', self.path)
 
-    def get_diff(self, filename, cached):
-        return do_shell(f'git diff {"--cached" if cached else ""} {quote(filename)}', self.path)
+    def get_diff(self, filename, staged):
+        return do_shell(f'git diff {"--cached" if staged else ""} {quote(filename)}', self.path)
 
-    def get_diffstat(self, filename, cached):
-        if diffstat := do_shell(f'git diff --numstat {"--cached" if cached else ""} {quote(filename)}', self.path):
+    def get_diffstat(self, filename, staged):
+        if diffstat := do_shell(f'git diff --numstat {"--cached" if staged else ""} {quote(filename)}', self.path):
             if (match := GIT_DIFF_NUMSTAT_RE.search(diffstat)) is not None:
                 return _(f'{match.group("added")} insertions(+), {match.group("deleted")} deletions(-)')
 

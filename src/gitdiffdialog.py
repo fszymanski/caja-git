@@ -60,14 +60,14 @@ class GitDiffDialog(Gtk.Dialog):
 
             self.set_buffer(*files[0])
 
-    def set_buffer(self, filename, cached):
-        diff = self.git.get_diff(filename, cached == 'S')
+    def set_buffer(self, filename, staged):
+        diff = self.git.get_diff(filename, staged == 'S')
 
         buf = Gtk.TextBuffer.new(None)
         buf.set_text(diff)
         self.diff_view.set_buffer(buf)
 
-        if (diffstat := self.git.get_diffstat(filename, cached == 'S')) is None:
+        if (diffstat := self.git.get_diffstat(filename, staged == 'S')) is None:
             self.diffstat_label.set_text('')
         else:
             self.diffstat_label.set_text(diffstat)
@@ -77,8 +77,8 @@ class GitDiffDialog(Gtk.Dialog):
         iter_ = combo.get_active_iter()
         if iter_ is not None:
             model = combo.get_model()
-            filename, cached = model[iter_][:2]
-            self.set_buffer(filename, cached)
+            filename, staged = model[iter_][:2]
+            self.set_buffer(filename, staged)
 
     @Gtk.Template.Callback()
     def close_button_clicked(self, *args):
