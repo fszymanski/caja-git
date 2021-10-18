@@ -41,28 +41,44 @@ class GitDiffDialog(Gtk.Dialog):
         self.set_title(_(f'Diff for {self.git.get_project_name()}'))
         self.set_transient_for(window)
 
-        if filenames := self.git.get_modified():
-            for filename in filenames:
-                self.modified_combo.append_text(filename)
+        if files := self.git.get_modified():
+            store = Gtk.ListStore.new([str, str])
+            for file in files:
+                store.append(file)
+
+            self.modified_combo.set_model(store)
+
+            renderer = Gtk.CellRendererText.new()
+            self.modified_combo.pack_start(renderer, True)
+            self.modified_combo.add_attribute(renderer, 'text', 0)
+
+            renderer = Gtk.CellRendererText.new()
+            self.modified_combo.pack_start(renderer, True)
+            self.modified_combo.add_attribute(renderer, 'text', 1)
 
             self.modified_combo.set_active(0)
 
-            self.set_buffer(filenames[0])
+            self.set_buffer(*files[0])
 
-    def set_buffer(self, filename):
-        diff = self.git.get_diff(filename)
+    def set_buffer(self, filename, cached):
+        diff = self.git.get_diff(filename, cached == 'S')
 
         buf = Gtk.TextBuffer.new(None)
         buf.set_text(diff)
         self.diff_view.set_buffer(buf)
 
-        if (diffstat := self.git.get_diffstat(filename)) is not None:
+        if (diffstat := self.git.get_diffstat(filename, cached == 'S')) is None:
+            self.diffstat_label.set_text('')
+        else:
             self.diffstat_label.set_text(diffstat)
 
     @Gtk.Template.Callback()
-    def modified_combo_changed(self, *args):
-        filename = self.modified_combo.get_active_text()
-        self.set_buffer(filename)
+    def modified_combo_changed(self, combo):
+        iter_ = combo.get_active_iter()
+        if iter_ is not None:
+            model = combo.get_model()
+            filename, cached = model[iter_][:2]
+            self.set_buffer(filename, cached)
 
     @Gtk.Template.Callback()
     def close_button_clicked(self, *args):

@@ -71,11 +71,11 @@ class Git:
 
         return do_shell('git rev-parse --abbrev-ref HEAD', self.path)
 
-    def get_diff(self, filename):
-        return do_shell(f'git diff {quote(filename)}', self.path)
+    def get_diff(self, filename, cached):
+        return do_shell(f'git diff {"--cached" if cached else ""} {quote(filename)}', self.path)
 
-    def get_diffstat(self, filename):
-        if diffstat := do_shell(f'git diff --numstat {quote(filename)}', self.path):
+    def get_diffstat(self, filename, cached):
+        if diffstat := do_shell(f'git diff --numstat {"--cached" if cached else ""} {quote(filename)}', self.path):
             if (match := GIT_DIFF_NUMSTAT_RE.search(diffstat)) is not None:
                 return _(f'{match.group("added")} insertions(+), {match.group("deleted")} deletions(-)')
 
@@ -86,10 +86,15 @@ class Git:
         return []
 
     def get_modified(self):
-        if modified := do_shell('git diff --name-only', self.path):
-            return sorted(set(modified.split('\n')))
+        modified = []
 
-        return []
+        if staged := do_shell('git diff --name-only --cached', self.path):
+            modified += [[f, 'S'] for f in staged.split('\n')]
+
+        if unstaged := do_shell('git diff --name-only', self.path):
+            modified += [[f, 'U'] for f in unstaged.split('\n')]
+
+        return sorted(modified)
 
     def get_project_name(self):
         if url := self.get_remote_url():
