@@ -26,7 +26,7 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
-GIT_DIFF_NUMSTAT_RE = re.compile(r'(?P<insertions>\d+)\s+(?P<deletions>\d+)\s+.*')
+GIT_DIFF_NUMSTAT_RE = re.compile(r'(?P<added>\d+|-)\s+(?P<deleted>\d+|-)\s+.*')
 
 GIT_STATUS_DELETED_RE = re.compile(r'deleted:\s+(.*)')
 GIT_STATUS_MODIFIED_RE = re.compile(r'modified:\s+(.*)')
@@ -76,7 +76,7 @@ class Git:
     def get_diffstat(self, filename):
         if diffstat := do_shell(f'git diff --numstat {filename}', self.path):
             if (match := GIT_DIFF_NUMSTAT_RE.search(diffstat)) is not None:
-                return _(f'{match.group("insertions")} insertion(s), {match.group("deletions")} deletion(s)')
+                return _(f'{match.group("added")} insertions(+), {match.group("deleted")} deletions(-)')
 
     def get_local_branches(self):
         if branches := do_shell('git branch', self.path):
