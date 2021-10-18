@@ -74,8 +74,7 @@ class GitDiffDialog(Gtk.Dialog):
 
     @Gtk.Template.Callback()
     def modified_combo_changed(self, combo):
-        iter_ = combo.get_active_iter()
-        if iter_ is not None:
+        if (iter_ := combo.get_active_iter()) is not None:
             model = combo.get_model()
             filename, staged = model[iter_][:2]
             self.set_buffer(filename, staged)
