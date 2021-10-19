@@ -69,7 +69,7 @@ class Git:
         if branch := do_shell('git branch --show-current', self.path):
             return branch
 
-        return do_shell('git rev-parse --abbrev-ref HEAD', self.path)
+        return do_shell('git symbolic-ref --short HEAD', self.path)
 
     def get_diff(self, filename, staged):
         return do_shell(f'git diff {"--cached" if staged else ""} {quote(filename)}', self.path)
@@ -107,7 +107,6 @@ class Git:
 
     def get_status(self):
         status = do_shell('git status', self.path)
-
         deleted = GIT_STATUS_DELETED_RE.findall(status)
         modified = GIT_STATUS_MODIFIED_RE.findall(status)
         new_file = GIT_STATUS_NEW_RE.findall(status)
