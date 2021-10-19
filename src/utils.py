@@ -69,7 +69,7 @@ class Git:
         if branch := do_shell('git branch --show-current', self.path):
             return branch
 
-        return do_shell('git symbolic-ref --short HEAD', self.path)
+        return do_shell('git rev-parse HEAD', self.path)
 
     def get_diff(self, filename, staged):
         return do_shell(f'git diff {"--cached" if staged else ""} {quote(filename)}', self.path)
