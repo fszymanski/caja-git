@@ -49,6 +49,8 @@
               <object class="GtkComboBox" id="modified_combo">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="tooltip-text" translatable="yes">S - Staged changes
+U - Unstaged changes</property>
                 <signal name="changed" handler="modified_combo_changed" swapped="no"/>
               </object>
               <packing>
