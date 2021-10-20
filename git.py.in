@@ -32,8 +32,8 @@ from gi.repository import Caja, Gio, GObject, Gtk
 resource = Gio.resource_load('@PKG_DATA_DIR@/caja-git.gresource')
 Gio.Resource._register(resource)
 
-from gitinfobar import GitInfoBar
-from gitpropertypage import GitPropertyPage
+from ui.gitinfobar import GitInfoBar
+from ui.gitpropertypage import GitPropertyPage
 from utils import is_git_dir
 
 
