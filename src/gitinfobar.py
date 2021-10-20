@@ -26,7 +26,6 @@ from gi.repository import Gtk
 from gitbranchdialog import GitBranchDialog
 from gitdiffdialog import GitDiffDialog
 from utils import Git
-from watchdog import Watchdog
 
 
 @Gtk.Template(resource_path='/org/mate/caja/extensions/git/ui/gitinfobar.ui')
@@ -58,8 +57,7 @@ class GitInfoBar(Gtk.InfoBar):
         self.deleted_button.connect('clicked', self.show_popover, self.deleted_popover)
         self.more_button.connect('clicked', self.show_popover, self.more_popover)
 
-        watchdog = Watchdog(self.git.path)
-        watchdog.connect('refresh', self.refresh)
+        self.git.connect('refresh', self.refresh)
 
     def update_ui(self):
         self.branch_button.set_label(self.git.get_current_branch())

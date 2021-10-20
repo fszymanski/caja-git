@@ -16,16 +16,19 @@
 
 __all__ = ['Git', 'is_git_dir']
 
+import os
 import re
 import subprocess
+import time
 from gettext import gettext as _
 from pathlib import Path
 from shlex import quote
+from threading import Thread
 
 import gi
 
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import GLib, GObject, Gtk
 
 GIT_DIFF_NUMSTAT_RE = re.compile(r'(?P<added>\d+|-)\s+(?P<deleted>\d+|-)\s+.*')
 
@@ -36,19 +39,6 @@ GIT_REMOTE_URL_VALID_RE = re.compile(r'(https://|git@)')
 GIT_STATUS_DELETED_RE = re.compile(r'deleted:\s+(.*)')
 GIT_STATUS_MODIFIED_RE = re.compile(r'modified:\s+(.*)')
 GIT_STATUS_NEW_RE = re.compile(r'new file:\s+(.*)')
-
-
-def do_shell(cmd, path):
-    proc = subprocess.run(cmd,
-                          stdout=subprocess.PIPE,
-                          stderr=subprocess.DEVNULL,
-                          shell=True,
-                          cwd=path)
-    return proc.stdout.decode('utf-8').strip()
-
-
-def get_git_top_level_dir(path):
-    return do_shell('git rev-parse --show-toplevel', path)
 
 
 def is_git_dir(path):
@@ -65,9 +55,53 @@ def is_git_dir(path):
         return False
 
 
-class Git:
+def do_shell(cmd, path):
+    proc = subprocess.run(cmd,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.DEVNULL,
+                          shell=True,
+                          cwd=path)
+    return proc.stdout.decode('utf-8').strip()
+
+
+def get_git_top_level_dir(path):
+    return do_shell('git rev-parse --show-toplevel', path)
+
+
+def get_file_mtimes(path):
+    for dirname, subdirs, files in os.walk(path):
+        return [Path(dirname, file).stat().st_mtime for file in files]
+
+
+class Git(GObject.GObject, Thread):
+    __gsignals__ = {'refresh': (GObject.SIGNAL_RUN_FIRST, None, ())}
+
     def __init__(self, path):
+        GObject.GObject.__init__(self)
+        Thread.__init__(self)
+
         self.path = get_git_top_level_dir(path)
+
+        self.daemon = True
+        self.to_watch = Path(self.path, '.git')
+        self.last_modified_time = None
+
+        self.start()
+
+    def idle(self):
+        self.emit('refresh')
+
+        return False
+
+    def run(self):
+        while self.to_watch.exists():
+            max_mtime = max(get_file_mtimes(self.to_watch))
+            if self.last_modified_time is not None and self.last_modified_time < max_mtime:
+                GLib.idle_add(self.idle)
+
+            self.last_modified_time = max_mtime
+
+            time.sleep(5)
 
     def get_current_branch(self):
         if branch := do_shell('git branch --show-current', self.path):
@@ -106,11 +140,10 @@ class Git:
 
         return Path(url).stem
 
-
     def get_remote_url(self):
         def normalize_url(url):
             if url.startswith('git@'):
-                url = GIT_REMOTE_URL_SSH_RE.sub('https://\g<1>/', url)
+                url = GIT_REMOTE_URL_SSH_RE.sub('https://\1/', url)
 
             return GIT_REMOTE_URL_SUFFIX_RE.sub('', url)
 

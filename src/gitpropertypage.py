@@ -22,7 +22,6 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 from utils import Git
-from watchdog import Watchdog
 
 
 @Gtk.Template(resource_path='/org/mate/caja/extensions/git/ui/gitpropertypage.ui')
@@ -41,8 +40,7 @@ class GitPropertyPage(Gtk.Grid):
 
         self.update_ui()
 
-        watchdog = Watchdog(self.git.path)
-        watchdog.connect('refresh', self.refresh)
+        self.git.connect('refresh', self.refresh)
 
     def update_ui(self):
         self.branch_label.set_text(self.git.get_current_branch())
