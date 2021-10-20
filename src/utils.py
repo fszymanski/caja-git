@@ -14,7 +14,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 #
 
-__all__ = ['do_shell', 'get_git_top_level_dir', 'Git', 'is_git_dir']
+__all__ = ['Git', 'is_git_dir']
 
 import re
 import subprocess
@@ -28,6 +28,10 @@ gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 
 GIT_DIFF_NUMSTAT_RE = re.compile(r'(?P<added>\d+|-)\s+(?P<deleted>\d+|-)\s+.*')
+
+GIT_REMOTE_URL_SSH_RE = re.compile(r'^git@(.+?):')
+GIT_REMOTE_URL_SUFFIX_RE = re.compile(r'\.git$')
+GIT_REMOTE_URL_VALID_RE = re.compile(r'(https://|git@)')
 
 GIT_STATUS_DELETED_RE = re.compile(r'deleted:\s+(.*)')
 GIT_STATUS_MODIFIED_RE = re.compile(r'modified:\s+(.*)')
@@ -103,7 +107,15 @@ class Git:
         return Path(self.path).name
 
     def get_remote_url(self):
-        return do_shell('git config --get remote.origin.url', self.path)
+        def normalize_url(url):
+            if url.startswith('git@'):
+                url = GIT_REMOTE_URL_SSH_RE.sub('https://\g<1>/', url)
+
+            return GIT_REMOTE_URL_SUFFIX_RE.sub('', url)
+
+        if url := do_shell('git config --get remote.origin.url', self.path):
+            if GIT_REMOTE_URL_VALID_RE.match(url) is not None:
+                return normalize_url(url)
 
     def get_status(self):
         status = do_shell('git status', self.path)

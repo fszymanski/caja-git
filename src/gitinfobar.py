@@ -16,7 +16,6 @@
 
 __all__ = ['GitInfoBar']
 
-import re
 import webbrowser
 
 import gi
@@ -28,9 +27,6 @@ from gitbranchdialog import GitBranchDialog
 from gitdiffdialog import GitDiffDialog
 from utils import Git
 from watchdog import Watchdog
-
-GIT_REMOTE_URL_RE = re.compile(r'(http|ftp)s?://')
-GIT_DIR_RE = re.compile(r'\.git/?$')
 
 
 @Gtk.Template(resource_path='/org/mate/caja/extensions/git/ui/gitinfobar.ui')
@@ -87,7 +83,7 @@ class GitInfoBar(Gtk.InfoBar):
             else:
                 button.hide()
 
-        if has_remote := bool(GIT_REMOTE_URL_RE.match(self.git.get_remote_url())):
+        if has_remote := bool(self.git.get_remote_url()):
             self.open_remote_url_button.show()
         else:
             self.open_remote_url_button.hide()
@@ -116,8 +112,7 @@ class GitInfoBar(Gtk.InfoBar):
 
     @Gtk.Template.Callback()
     def open_remote_url_button_clicked(self, *args):
-        url = GIT_DIR_RE.sub('', self.git.get_remote_url())
-        webbrowser.open(url)
+        webbrowser.open(self.git.get_remote_url())
 
         self.more_popover.hide()
 
