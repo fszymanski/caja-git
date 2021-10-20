@@ -126,10 +126,10 @@ class Git(GObject.GObject, Thread):
     def get_modified(self):
         modified = []
 
-        if staged := do_shell('git diff --name-only --cached', self.path):
+        if staged := do_shell('git diff --name-only --diff-filter=d --cached', self.path):
             modified += [[f, 'S'] for f in staged.split('\n')]
 
-        if unstaged := do_shell('git diff --name-only', self.path):
+        if unstaged := do_shell('git diff --name-only --diff-filter=d', self.path):
             modified += [[f, 'U'] for f in unstaged.split('\n')]
 
         return sorted(modified)
