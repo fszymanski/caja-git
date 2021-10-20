@@ -101,10 +101,11 @@ class Git:
         return sorted(modified)
 
     def get_project_name(self):
-        if url := self.get_remote_url():
-            return Path(url).stem
+        if (url := self.get_remote_url()) is None:
+            return Path(self.path).name
 
-        return Path(self.path).name
+        return Path(url).stem
+
 
     def get_remote_url(self):
         def normalize_url(url):
