@@ -63,9 +63,9 @@ class GitDiffDialog(Gtk.Dialog):
     def set_buffer(self, filename, staged):
         diff = self.git.get_diff(filename, staged == 'S')
 
-        buf = Gtk.TextBuffer.new(None)
+        buf = self.diff_view.get_buffer()
+        self.diff_view.get_buffer()
         buf.set_text(diff)
-        self.diff_view.set_buffer(buf)
 
         if (diffstat := self.git.get_diffstat(filename, staged == 'S')) is None:
             self.diffstat_label.set_text('')
