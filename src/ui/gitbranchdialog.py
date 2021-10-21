@@ -45,7 +45,7 @@ class GitBranchDialog(Gtk.Dialog):
 
         current_branch = self.git.get_current_branch()
         index = 0
-        for (i, branch) in enumerate(self.git.get_local_branches()):
+        for i, branch in enumerate(self.git.get_local_branches()):
             if branch == current_branch:
                 index = i
 

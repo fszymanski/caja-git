@@ -4,8 +4,8 @@
 Caja extension that shows information about the current git directory. This project is based on [caja-git](https://github.com/darkshram/caja-git) by [Joel Barrios](https://github.com/darkshram).
 
 ## Dependencies
-- `python >= 3.8`
 - `git`
+- `python >= 3.8`
 - `python3-caja`
 
 ## Installation
