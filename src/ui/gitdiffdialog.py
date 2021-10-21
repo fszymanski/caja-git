@@ -41,6 +41,10 @@ class GitDiffDialog(Gtk.Dialog):
         self.set_title(_(f'Diff for {self.git.get_project_name()}'))
         self.set_transient_for(window)
 
+        self.buf = self.diff_view.get_buffer()
+        self.buf.create_tag('added', background='green')
+        self.buf.create_tag('deleted', background='red')
+
         if files := self.git.get_modified():
             store = Gtk.ListStore.new([str, str])
             for file in files:
@@ -63,8 +67,19 @@ class GitDiffDialog(Gtk.Dialog):
     def set_buffer(self, filename, staged):
         diff = self.git.get_diff(filename, staged == 'S')
 
-        buf = self.diff_view.get_buffer()
-        buf.set_text(diff)
+        self.buf.set_text(diff)
+
+        for line_nr, line in enumerate(diff.split('\n')):
+            if line_nr < 4:
+                continue
+
+            start = self.buf.get_iter_at_line(line_nr)
+            end = self.buf.get_iter_at_line(line_nr + 1)
+
+            if line.startswith('+'):
+                self.buf.apply_tag_by_name('added', start, end)
+            elif line.startswith('-'):
+                self.buf.apply_tag_by_name('deleted', start, end)
 
         if (diffstat := self.git.get_diffstat(filename, staged == 'S')) is None:
             self.diffstat_label.set_text('')
