@@ -44,14 +44,14 @@ class GitBranchDialog(Gtk.Dialog):
         self.set_transient_for(window)
 
         current_branch = self.git.get_current_branch()
-        idx = 0
+        index = 0
         for (i, branch) in enumerate(self.git.get_local_branches()):
             if branch == current_branch:
-                idx = i
+                index = i
 
             self.branch_combo.append_text(branch)
 
-        self.branch_combo.set_active(idx)
+        self.branch_combo.set_active(index)
 
     @Gtk.Template.Callback()
     def branch_entry_changed(self, *args):
