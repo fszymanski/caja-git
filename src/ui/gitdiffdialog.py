@@ -37,6 +37,7 @@ class GitDiffDialog(Gtk.Dialog):
         super().__init__()
 
         self.git = git
+        self.window = window
 
         self.set_title(_(f'Diff for {self.git.get_project_name()}'))
         self.set_transient_for(window)
@@ -64,22 +65,38 @@ class GitDiffDialog(Gtk.Dialog):
 
             self.set_buffer(*files[0])
 
+    # https://lzone.de/blog/Detecting-a-Dark-Theme-in-GTK and
+    # https://www.titanwolf.org/Network/q/11077cf0-7647-485d-a48d-8c17a2c26788/y
+    def is_dark_theme(self):
+        style = self.window.get_style_context()
+        found, txt_color = style.lookup_color('theme_text_color')
+        if not found:
+            txt_color = style.get_color(Gtk.StateFlags.NORMAL)
+
+        found, bg_color = style.lookup_color('theme_bg_color')
+        if not found:
+            bg_color = style.get_background_color(Gtk.StateFlags.NORMAL)
+
+        txt_avg = txt_color.blue / 256 + txt_color.green / 256 + txt_color.red / 256
+        bg_avg = bg_color.blue / 256 + bg_color.green / 256 + bg_color.red / 256
+
+        return txt_avg > bg_avg
+
+    def get_iters_at_line(self, line_nr):
+        return self.buf.get_iter_at_line(line_nr), self.buf.get_iter_at_line(line_nr + 1)
+
     def set_buffer(self, filename, staged):
         diff = self.git.get_diff(filename, staged == 'S')
-
         self.buf.set_text(diff)
 
-        for line_nr, line in enumerate(diff.split('\n')):
-            if line_nr < 4:
+        for i, line in enumerate(diff.split('\n')):
+            if i < 4:
                 continue
 
-            start = self.buf.get_iter_at_line(line_nr)
-            end = self.buf.get_iter_at_line(line_nr + 1)
-
             if line.startswith('+'):
-                self.buf.apply_tag_by_name('added', start, end)
+                self.buf.apply_tag_by_name('added', *self.get_iters_at_line(i))
             elif line.startswith('-'):
-                self.buf.apply_tag_by_name('deleted', start, end)
+                self.buf.apply_tag_by_name('deleted', *self.get_iters_at_line(i))
 
         if (diffstat := self.git.get_diffstat(filename, staged == 'S')) is None:
             self.diffstat_label.set_text('')
