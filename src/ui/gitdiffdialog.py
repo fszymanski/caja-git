@@ -51,17 +51,17 @@ class Scheme:
     def hex_to_rgba(self, hex_color):
         color = Gdk.RGBA()
         color.parse(hex_color)
-        color.alpha = 0.4
+        color.alpha = 1.0
 
         return color
 
     @property
     def added_bg_color(self):
-        return self.hex_to_rgba('#006600') if self.use_dark else self.hex_to_rgba('#b2ffb2')
+        return self.hex_to_rgba('#13271E') if self.use_dark else self.hex_to_rgba('#E6FFEC')
 
     @property
     def deleted_bg_color(self):
-        return self.hex_to_rgba('#000066') if self.use_dark else self.hex_to_rgba('#b2b2ff')
+        return self.hex_to_rgba('#311B1F') if self.use_dark else self.hex_to_rgba('#FFEBE9')
 
 
 @Gtk.Template(resource_path='/org/mate/caja/extensions/git/ui/gitdiffdialog.ui')
