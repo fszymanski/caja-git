@@ -40,5 +40,7 @@ $ caja -q
 - The original code author [Bilal Elmoussaoui](https://github.com/bilelmoussaoui).
 - The `caja-git-symbolic.svg` icon was taken from [GNOME Builder](https://wiki.gnome.org/Apps/Builder).
 
-## Screenshot
-![](assets/screenshot.png?raw=true "Caja main window")
+## Screenshots
+![](assets/screenshot_1.png?raw=true "Caja main window")
+![](assets/screenshot_2.png?raw=true "Caja branch dialog")
+![](assets/screenshot_3.png?raw=true "Caja diff dialog")
