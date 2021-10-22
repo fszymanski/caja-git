@@ -20,8 +20,48 @@ from gettext import gettext as _
 
 import gi
 
+gi.require_version('Gdk', '3.0')
 gi.require_version('Gtk', '3.0')
-from gi.repository import Gtk
+from gi.repository import Gdk, Gtk
+
+
+class Scheme:
+    def __init__(self, window):
+        self.use_dark = self.is_dark_theme(window)
+
+    # https://lzone.de/blog/Detecting-a-Dark-Theme-in-GTK
+    def is_dark_theme(self, window):
+        style = window.get_style_context()
+        found, txt_color = style.lookup_color('theme_text_color')
+        if not found:
+            txt_color = style.get_color(Gtk.StateFlags.NORMAL)
+
+        found, bg_color = style.lookup_color('theme_bg_color')
+        if not found:
+            # TODO: `get_background_color()` is deprecated, rewrite it in the future
+            # https://gitlab.gnome.org/GNOME/pygobject/-/issues/119 and
+            # https://www.titanwolf.org/Network/q/11077cf0-7647-485d-a48d-8c17a2c26788/y
+            bg_color = style.get_background_color(Gtk.StateFlags.NORMAL)
+
+        txt_avg = txt_color.blue / 256 + txt_color.green / 256 + txt_color.red / 256
+        bg_avg = bg_color.blue / 256 + bg_color.green / 256 + bg_color.red / 256
+
+        return txt_avg > bg_avg
+
+    def hex_to_rgba(self, hex_color):
+        color = Gdk.RGBA()
+        color.parse(hex_color)
+        color.alpha = 0.4
+
+        return color
+
+    @property
+    def added_bg_color(self):
+        return self.hex_to_rgba('#006600') if self.use_dark else self.hex_to_rgba('#b2ffb2')
+
+    @property
+    def deleted_bg_color(self):
+        return self.hex_to_rgba('#000066') if self.use_dark else self.hex_to_rgba('#b2b2ff')
 
 
 @Gtk.Template(resource_path='/org/mate/caja/extensions/git/ui/gitdiffdialog.ui')
@@ -37,14 +77,15 @@ class GitDiffDialog(Gtk.Dialog):
         super().__init__()
 
         self.git = git
-        self.window = window
 
         self.set_title(_(f'Diff for {self.git.get_project_name()}'))
         self.set_transient_for(window)
 
+        scheme = Scheme(window)
+
         self.buf = self.diff_view.get_buffer()
-        self.buf.create_tag('added', background='green')
-        self.buf.create_tag('deleted', background='red')
+        self.buf.create_tag('added', background_rgba=scheme.added_bg_color)
+        self.buf.create_tag('deleted', background_rgba=scheme.deleted_bg_color)
 
         if files := self.git.get_modified():
             store = Gtk.ListStore.new([str, str])
@@ -64,23 +105,6 @@ class GitDiffDialog(Gtk.Dialog):
             self.modified_combo.set_active(0)
 
             self.set_buffer(*files[0])
-
-    # https://lzone.de/blog/Detecting-a-Dark-Theme-in-GTK and
-    # https://www.titanwolf.org/Network/q/11077cf0-7647-485d-a48d-8c17a2c26788/y
-    def is_dark_theme(self):
-        style = self.window.get_style_context()
-        found, txt_color = style.lookup_color('theme_text_color')
-        if not found:
-            txt_color = style.get_color(Gtk.StateFlags.NORMAL)
-
-        found, bg_color = style.lookup_color('theme_bg_color')
-        if not found:
-            bg_color = style.get_background_color(Gtk.StateFlags.NORMAL)
-
-        txt_avg = txt_color.blue / 256 + txt_color.green / 256 + txt_color.red / 256
-        bg_avg = bg_color.blue / 256 + bg_color.green / 256 + bg_color.red / 256
-
-        return txt_avg > bg_avg
 
     def get_iters_at_line(self, line_nr):
         return self.buf.get_iter_at_line(line_nr), self.buf.get_iter_at_line(line_nr + 1)
