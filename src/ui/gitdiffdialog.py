@@ -56,6 +56,10 @@ class Scheme:
         return color
 
     @property
+    def chunk_header_bg_color(self):
+        return self.hex_to_rgba('#14243A') if self.use_dark else self.hex_to_rgba('#DDF4FF')
+
+    @property
     def added_bg_color(self):
         return self.hex_to_rgba('#13271E') if self.use_dark else self.hex_to_rgba('#E6FFEC')
 
@@ -84,6 +88,7 @@ class GitDiffDialog(Gtk.Dialog):
         scheme = Scheme(window)
 
         self.buf = self.diff_view.get_buffer()
+        self.buf.create_tag('chunk_header', background_rgba=scheme.chunk_header_bg_color)
         self.buf.create_tag('added', background_rgba=scheme.added_bg_color)
         self.buf.create_tag('deleted', background_rgba=scheme.deleted_bg_color)
 
@@ -117,7 +122,9 @@ class GitDiffDialog(Gtk.Dialog):
             if i < 4:
                 continue
 
-            if line.startswith('+'):
+            if line.startswith('@@'):
+                self.buf.apply_tag_by_name('chunk_header', *self.get_iters_at_line(i))
+            elif line.startswith('+'):
                 self.buf.apply_tag_by_name('added', *self.get_iters_at_line(i))
             elif line.startswith('-'):
                 self.buf.apply_tag_by_name('deleted', *self.get_iters_at_line(i))
