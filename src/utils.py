@@ -117,6 +117,8 @@ class Git(GObject.GObject, Thread):
             if (match := GIT_DIFF_NUMSTAT_RE.search(diffstat)) is not None:
                 return _(f'{match.group("added")} insertions(+), {match.group("deleted")} deletions(-)')
 
+        return None
+
     def get_local_branches(self):
         if branches := do_shell('git branch', self.path):
             return sorted([b.lstrip('* ') for b in branches.split('\n')])
@@ -150,6 +152,8 @@ class Git(GObject.GObject, Thread):
         if url := do_shell('git config --get remote.origin.url', self.path):
             if GIT_REMOTE_URL_VALID_RE.match(url) is not None:
                 return normalize_url(url)
+
+        return None
 
     def get_status(self):
         status = do_shell('git status', self.path)
