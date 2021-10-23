@@ -16,8 +16,6 @@
 
 __all__ = ['GitDiffDialog']
 
-from gettext import gettext as _
-
 import gi
 
 gi.require_version('Gdk', '3.0')
@@ -82,7 +80,7 @@ class GitDiffDialog(Gtk.Dialog):
 
         self.git = git
 
-        self.set_title(_(f'Diff for {self.git.get_project_name()}'))
+        self.set_title(f'Diff for {self.git.get_project_name()}')
         self.set_transient_for(window)
 
         scheme = Scheme(window)
@@ -142,7 +140,7 @@ class GitDiffDialog(Gtk.Dialog):
             self.set_buffer(filename, staged)
 
     @Gtk.Template.Callback()
-    def close_button_clicked(self, *args):
+    def close_button_clicked(self, *_):
         self.destroy()
 
 # vim: ft=python3 ts=4 et

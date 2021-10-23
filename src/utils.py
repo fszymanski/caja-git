@@ -20,7 +20,6 @@ import os
 import re
 import subprocess
 import time
-from gettext import gettext as _
 from pathlib import Path
 from shlex import quote
 from threading import Thread
@@ -115,7 +114,7 @@ class Git(GObject.GObject, Thread):
     def get_diffstat(self, filename, staged):
         if diffstat := do_shell(f'git diff --numstat {"--cached" if staged else ""} {quote(filename)}', self.path):
             if (match := GIT_DIFF_NUMSTAT_RE.search(diffstat)) is not None:
-                return _(f'{match.group("added")} insertions(+), {match.group("deleted")} deletions(-)')
+                return f'{match.group("added")} insertions(+), {match.group("deleted")} deletions(-)'
 
         return None
 
@@ -175,7 +174,7 @@ class Git(GObject.GObject, Thread):
                                        flags=0,
                                        message_type=Gtk.MessageType.QUESTION,
                                        buttons=Gtk.ButtonsType.YES_NO,
-                                       text=_(f"The '{branch}' branch does not exist. Do you want to create it?"))
+                                       text=f"The '{branch}' branch does not exist. Do you want to create it?")
             if dialog.run() == Gtk.ResponseType.YES:
                 do_shell(f'git checkout -b {branch}', self.path)
 

@@ -16,8 +16,6 @@
 
 __all__ = ['GitBranchDialog']
 
-from gettext import gettext as _
-
 import gi
 
 gi.require_version('Gtk', '3.0')
@@ -40,7 +38,7 @@ class GitBranchDialog(Gtk.Dialog):
 
         self.git = git
 
-        self.set_title(_(f'Branch for {self.git.get_project_name()}'))
+        self.set_title(f'Branch for {self.git.get_project_name()}')
         self.set_transient_for(window)
 
         current_branch = self.git.get_current_branch()
@@ -54,7 +52,7 @@ class GitBranchDialog(Gtk.Dialog):
         self.branch_combo.set_active(idx)
 
     @Gtk.Template.Callback()
-    def branch_entry_changed(self, *args):
+    def branch_entry_changed(self, *_):
         branch = self.branch_entry.get_text().strip()
         if branch and branch in self.git.get_local_branches():
             self.branch_entry.get_style_context().remove_class('error')
@@ -62,7 +60,7 @@ class GitBranchDialog(Gtk.Dialog):
             self.branch_entry.get_style_context().add_class('error')
 
     @Gtk.Template.Callback()
-    def apply_button_clicked(self, *args):
+    def apply_button_clicked(self, *_):
         if branch := self.branch_entry.get_text().strip():
             self.git.switch_branch(branch, self)
 
@@ -71,7 +69,7 @@ class GitBranchDialog(Gtk.Dialog):
         self.destroy()
 
     @Gtk.Template.Callback()
-    def cancel_button_clicked(self, *args):
+    def cancel_button_clicked(self, *_):
         self.destroy()
 
 # vim: ft=python3 ts=4 et

@@ -52,12 +52,12 @@ class GitInfoBar(Gtk.InfoBar):
 
         self.update_ui()
 
-        self.new_file_button.connect('clicked', self.show_popover, self.new_file_popover)
-        self.modified_button.connect('clicked', self.show_popover, self.modified_popover)
-        self.deleted_button.connect('clicked', self.show_popover, self.deleted_popover)
-        self.more_button.connect('clicked', self.show_popover, self.more_popover)
+        self.new_file_button.connect('clicked', lambda _, p: self.show_popover(p), self.new_file_popover)
+        self.modified_button.connect('clicked', lambda _, p: self.show_popover(p), self.modified_popover)
+        self.deleted_button.connect('clicked', lambda _, p: self.show_popover(p), self.deleted_popover)
+        self.more_button.connect('clicked', lambda _, p: self.show_popover(p), self.more_popover)
 
-        self.git.connect('refresh', self.refresh)
+        self.git.connect('refresh', lambda _: self.refresh())
 
     def update_ui(self):
         self.branch_button.set_label(self.git.get_current_branch())
@@ -93,29 +93,29 @@ class GitInfoBar(Gtk.InfoBar):
 
         self.more_button.set_sensitive(has_remote or has_modified)
 
-    def refresh(self, arg):
+    def refresh(self):
         self.update_ui()
 
-    def show_popover(self, button, popover):
+    def show_popover(self, popover):
         if popover.get_visible():
             popover.hide()
         else:
             popover.show()
 
     @Gtk.Template.Callback()
-    def branch_button_clicked(self, *args):
+    def branch_button_clicked(self, *_):
         dialog = GitBranchDialog(self.git, self.window)
 
-        dialog.connect('refresh', self.refresh)
+        dialog.connect('refresh', lambda _: self.refresh())
 
     @Gtk.Template.Callback()
-    def open_remote_url_button_clicked(self, *args):
+    def open_remote_url_button_clicked(self, *_):
         webbrowser.open(self.git.get_remote_url())
 
         self.more_popover.hide()
 
     @Gtk.Template.Callback()
-    def diff_button_clicked(self, *args):
+    def diff_button_clicked(self, *_):
         dialog = GitDiffDialog(self.git, self.window)
 
         self.more_popover.hide()

@@ -40,7 +40,7 @@ class GitPropertyPage(Gtk.Grid):
 
         self.update_ui()
 
-        self.git.connect('refresh', self.refresh)
+        self.git.connect('refresh', lambda _: self.refresh())
 
     def update_ui(self):
         self.branch_label.set_text(self.git.get_current_branch())
@@ -50,7 +50,7 @@ class GitPropertyPage(Gtk.Grid):
             label = getattr(self, f'{prefix}_label')
             label.set_text(str(len(status[prefix])))
 
-    def refresh(self, arg):
+    def refresh(self):
         self.update_ui()
 
 # vim: ft=python3 ts=4 et
