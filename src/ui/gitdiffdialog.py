@@ -116,7 +116,7 @@ class GitDiffDialog(Gtk.Dialog):
         diff = self.git.get_diff(filename, staged == 'S')
         self.buf.set_text(diff)
 
-        for i, line in enumerate(diff.split('\n')):
+        for i, line in enumerate(diff.splitlines()):
             if i < 4:
                 continue
 

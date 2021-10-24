@@ -120,7 +120,7 @@ class Git(GObject.GObject, Thread):
 
     def get_local_branches(self):
         if branches := do_shell('git branch', self.path):
-            return sorted([b.lstrip('* ') for b in branches.split('\n')])
+            return sorted([b.lstrip('* ') for b in branches.splitlines()])
 
         return []
 
@@ -128,10 +128,10 @@ class Git(GObject.GObject, Thread):
         modified = []
 
         if staged := do_shell('git diff --name-only --diff-filter=d --cached', self.path):
-            modified += [[f, 'S'] for f in staged.split('\n')]
+            modified += [[f, 'S'] for f in staged.splitlines()]
 
         if unstaged := do_shell('git diff --name-only --diff-filter=d', self.path):
-            modified += [[f, 'U'] for f in unstaged.split('\n')]
+            modified += [[f, 'U'] for f in unstaged.splitlines()]
 
         return sorted(modified)
 
