@@ -14,7 +14,7 @@ conf.set('CAJA_EXTENSION_DIR', get_option('prefix') / get_option('datadir') / 'c
 
 subdir('data')
 
-run_command(python3, '-m', 'compileall', meson.current_source_dir() / 'src')
+run_command(python3, '-m', 'compileall', meson.current_source_dir() / 'src', check: true)
 install_subdir('src', install_dir: conf.get('PKG_DATA_DIR'))
 
 configure_file(input: 'git.py.in',
